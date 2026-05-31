@@ -1,4 +1,4 @@
-#import io
+import io
 import requests
 import numpy as np
 import pandas as pd
@@ -32,7 +32,6 @@ def initialize_and_train_model():
             continue
             
     if not data_frames:
-        # Emergency backup structure if github hits request limits
         df = pd.DataFrame(columns=['tourney_date', 'winner_id', 'loser_id', 'surface', 'minutes', 'winner_name', 'loser_name'])
     else:
         df = pd.concat(data_frames, ignore_index=True)
@@ -41,7 +40,6 @@ def initialize_and_train_model():
     df = df.dropna(subset=['tourney_date', 'winner_id', 'loser_id', 'surface']).sort_values('tourney_date').reset_index(drop=True)
     df['minutes'] = df['minutes'].fillna(100)
     
-    # Run historical feature logs
     match_log, global_elo, h2h_tracker, player_stats_history = [], {}, {}, {}
     surface_elos = {'Hard': {}, 'Clay': {}, 'Grass': {}}
     winner_fatigue, loser_fatigue = [], []
@@ -52,14 +50,12 @@ def initialize_and_train_model():
         current_date, w_id, l_id = row['tourney_date'], row['winner_id'], row['loser_id']
         surf = row['surface'] if row['surface'] in surface_elos else 'Hard'
         
-        # Fatigue Lookback
         seven_days_ago = current_date - pd.Timedelta(days=7)
         recent = [m for m in match_log if seven_days_ago <= m['date'] < current_date]
         winner_fatigue.append(sum(m['mins'] for m in recent if m['p1'] == w_id or m['p2'] == w_id))
         loser_fatigue.append(sum(m['mins'] for m in recent if m['p1'] == l_id or m['p2'] == l_id))
         match_log.append({'date': current_date, 'p1': w_id, 'p2': l_id, 'mins': row['minutes']})
         
-        # Surface Blended Elo
         w_s, l_s = surface_elos[surf].get(w_id, 1500), surface_elos[surf].get(l_id, 1500)
         w_g, l_g = global_elo.get(w_id, 1500), global_elo.get(l_id, 1500)
         winner_blended.append((0.7 * w_s) + (0.3 * w_g))
@@ -72,13 +68,11 @@ def initialize_and_train_model():
         global_elo[w_id] = w_g + 32 * (1 - exp_w_g)
         global_elo[l_id] = l_g + 32 * (0 - (1 - exp_w_g))
         
-        # Head-To-Head
         pair = tuple(sorted([w_id, l_id]))
         if pair not in h2h_tracker: h2h_tracker[pair] = {w_id: 0, l_id: 0}
         winner_h2h_diff.append(h2h_tracker[pair].get(w_id, 0) - h2h_tracker[pair].get(l_id, 0))
         h2h_tracker[pair][w_id] = h2h_tracker[pair].get(w_id, 0) + 1
         
-        # Dominance
         w_h, l_h = player_stats_history.get(w_id, []), player_stats_history.get(l_id, [])
         winner_dom_diff.append((np.mean(w_h[-10:]) if len(w_h) > 0 else 1.0) - (np.mean(l_h[-10:]) if len(l_h) > 0 else 1.0))
         try:
@@ -131,7 +125,7 @@ surface_type = ui.selectbox("Match Court Surface", ["Hard", "Clay", "Grass"])
 
 if ui.button("⚡ Calculate Odds & Wager Size", use_container_width=True):
     if not name_map:
-        ui.error("Data tracking logs are initializing. Please calculate again in a moment.")
+        ui.error("Data tracking logs are initializing. Please calculate again.")
     else:
         id_a, id_b = name_map.get(player_a.lower()), name_map.get(player_b.lower())
         
@@ -180,7 +174,4 @@ if ui.button("⚡ Calculate Odds & Wager Size", use_container_width=True):
                 ui.write(f"Suggested Allocation: **{kelly_b*100:.1f}%** of your bankroll.")
                 ui.write(f"Recommended Wager Amount: **${wager:.2f}**")
             else:
-                ui.warning("❌ **No Betting Value Found.** Market prices match the engine parameters.")
-            else:
-                ui.error("Could not trace one or both players in the historical registry profiles.")
-
+                ui.warning("❌ **No Betting Value Found.** Market prices match engine parameters.")
