@@ -15,15 +15,13 @@ ui.write("Enter an upcoming matchup below to calculate true win probabilities.")
 # =====================================================================
 @ui.cache_resource
 def initialize_and_train_model():
-    # Fixed Data URL Stream
     years = [2023, 2024, 2025]
     data_frames = []
-     for year in years:
+    for year in years:
         url = f"https://githubusercontent.com_{year}.csv"
         res = requests.get(url)
         if res.status_code == 200:
             data_frames.append(pd.read_csv(io.StringIO(res.text)))
-
             
     df = pd.concat(data_frames, ignore_index=True)
     df['tourney_date'] = pd.to_datetime(df['tourney_date'], format='%Y%m%d', errors='coerce')
@@ -133,7 +131,8 @@ if ui.button("⚡ Calculate Odds & Wager Size", use_container_width=True):
     prob_matrix = model.predict_proba(input_row)
     
     # Safe 2D matrix array value unpacking
-    prob_a = float(prob_matrix[0][0]) if len(prob_matrix) > 0 else 0.50
+    prob_matrix_flat = prob_matrix.flatten()
+    prob_a = float(prob_matrix_flat[0]) if len(prob_matrix_flat) > 0 else 0.50
     prob_b = 1.0 - prob_a
     
     # Calculate Implied Probabilities from Bookmaker Odds
@@ -170,3 +169,4 @@ if ui.button("⚡ Calculate Odds & Wager Size", use_container_width=True):
         ui.write(f"Recommended Wager Amount: **${wager:.2f}**")
     else:
         ui.warning("❌ **No Betting Value Found.** The bookmaker's prices are too efficient compared to the model's edge.")
+
