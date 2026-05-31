@@ -23,6 +23,7 @@ def initialize_and_train_model():
         if res.status_code == 200:
             data_frames.append(pd.read_csv(io.StringIO(res.text)))
 
+
             
     df = pd.concat(data_frames, ignore_index=True)
     df['tourney_date'] = pd.to_datetime(df['tourney_date'], format='%Y%m%d', errors='coerce')
