@@ -129,7 +129,7 @@ if ui.button("⚡ Calculate Odds & Wager Size", use_container_width=True):
     dom_diff = np.mean(stats_hist.get(id_a, [1.0])[-10:]) - np.mean(stats_hist.get(id_b, [1.0])[-10:])
     
     input_row = pd.DataFrame([{'elo_diff': elo_a - elo_b, 'fatigue_diff': p1_mins - p2_mins, 'h2h_diff': h2h_diff, 'dom_diff': dom_diff}])
-       prob_matrix = model.predict_proba(input_row)[0]
+    prob_matrix = model.predict_proba(input_row)[0]
     
     prob_a = float(prob_matrix[1]) if len(prob_matrix) > 1 else 0.50
     prob_b = 1.0 - prob_a
