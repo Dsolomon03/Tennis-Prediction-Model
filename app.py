@@ -1,4 +1,4 @@
-import io
+#import io
 import requests
 import numpy as np
 import pandas as pd
@@ -181,4 +181,6 @@ if ui.button("⚡ Calculate Odds & Wager Size", use_container_width=True):
                 ui.write(f"Recommended Wager Amount: **${wager:.2f}**")
             else:
                 ui.warning("❌ **No Betting Value Found.** Market prices match the engine parameters.")
-        else:
+               else:
+            ui.error("Could not trace one or both players in the historical registry profiles.")
+
