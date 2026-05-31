@@ -181,6 +181,6 @@ if ui.button("⚡ Calculate Odds & Wager Size", use_container_width=True):
                 ui.write(f"Recommended Wager Amount: **${wager:.2f}**")
             else:
                 ui.warning("❌ **No Betting Value Found.** Market prices match the engine parameters.")
-               else:
-            ui.error("Could not trace one or both players in the historical registry profiles.")
+            else:
+                ui.error("Could not trace one or both players in the historical registry profiles.")
 
