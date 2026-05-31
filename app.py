@@ -22,6 +22,7 @@ def initialize_and_train_model():
         res = requests.get(url)
         if res.status_code == 200:
             data_frames.append(pd.read_csv(io.StringIO(res.text)))
+
             
     df = pd.concat(data_frames, ignore_index=True)
     df['tourney_date'] = pd.to_datetime(df['tourney_date'], format='%Y%m%d', errors='coerce')
@@ -128,10 +129,11 @@ if ui.button("⚡ Calculate Odds & Wager Size", use_container_width=True):
     dom_diff = np.mean(stats_hist.get(id_a, [1.0])[-10:]) - np.mean(stats_hist.get(id_b, [1.0])[-10:])
     
     input_row = pd.DataFrame([{'elo_diff': elo_a - elo_b, 'fatigue_diff': p1_mins - p2_mins, 'h2h_diff': h2h_diff, 'dom_diff': dom_diff}])
-    prob_matrix = model.predict_proba(input_row)
+       prob_matrix = model.predict_proba(input_row)[0]
     
-    prob_a = float(prob_matrix[0][0]) if len(prob_matrix[0]) > 0 else 0.50
+    prob_a = float(prob_matrix[1]) if len(prob_matrix) > 1 else 0.50
     prob_b = 1.0 - prob_a
+
     
     # Calculate Implied Probabilities from Bookmaker Odds
     implied_a = 1 / odds_a
