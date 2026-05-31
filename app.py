@@ -18,8 +18,8 @@ def initialize_and_train_model():
     # Fixed Data URL Stream
     years = [2023, 2024, 2025]
     data_frames = []
-    for year in years:
-                url = f"https://githubusercontent.com_{year}.csv"
+     for year in years:
+        url = f"https://githubusercontent.com_{year}.csv"
         res = requests.get(url)
         if res.status_code == 200:
             data_frames.append(pd.read_csv(io.StringIO(res.text)))
