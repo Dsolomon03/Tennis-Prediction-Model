@@ -34,11 +34,11 @@ def initialize_and_train_model():
     if not data_frames:
         df = pd.DataFrame(columns=['tourney_date', 'winner_id', 'loser_id', 'surface', 'minutes', 'winner_name', 'loser_name'])
     else:
-        df = pd.concat(data_frames, ignore_index=True)
-        
-    df['tourney_date'] = pd.to_datetime(df['tourney_date'], format='%Y%m%d', errors='coerce')
-    df = df.dropna(subset=['tourney_date', 'winner_id', 'loser_id', 'surface']).sort_values('tourney_date').reset_index(drop=True)
+           df['tourney_date'] = pd.to_datetime(df['tourney_date'], format='%Y%m%d', errors='coerce')
+    df['surface'] = df['surface'].fillna('Hard').astype(str).str.capitalize()
+    df = df.dropna(subset=['tourney_date', 'winner_id', 'loser_id']).sort_values('tourney_date').reset_index(drop=True)
     df['minutes'] = df['minutes'].fillna(100)
+
     
     match_log, global_elo, h2h_tracker, player_stats_history = [], {}, {}, {}
     surface_elos = {'Hard': {}, 'Clay': {}, 'Grass': {}}
